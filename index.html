@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+  </head>
+  <body>
+    <div style="margin: 3rem; height: 30rem; border: .5rem solid #d1d1d1;">
+      <div id="box" style="height:27rem">
+        <div
+          id="ball"
+          style="width:.5rem; height:.5rem; top:50%; left:30%; background-color: black; position: relative;"
+        ></div>
+        <div
+          id="cursor_a"
+          style="width:.5rem; height:3rem; background-color: blue; position: absolute;"
+        ></div>
+        <div
+          id="cursor_b"
+          style="width:.5rem; height:3rem; background-color: red; right:4rem; position: absolute;"
+        ></div>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var id;
+      var player;
+      const socket = io();
+      const cursor_a = document.getElementById("cursor_a");
+      const cursor_b = document.getElementById("cursor_b");
+      const ball = document.getElementById("ball");
+      document.getElementById("box").addEventListener("mousemove", function(event) {
+        if (player && event.target === this) {
+          cursor_a.style.top = `${event.clientY}px`;
+          socket.emit("coord", { id: player, coord: event.clientY });
+        }
+      });
+      socket.on("coord", function(event) {
+        if (player) {
+          console.log(player);
+          const { id, coord } = event;
+          if (id !== player) cursor_b.style.top = `${coord}px`;
+        }
+      });
+      socket.on("connected", function(event) {
+        socket.removeAllListeners("connected");
+        const { eid, eplayer } = event;
+        id = eid;
+        player = eplayer;
+      });
+      socket.on("ball", function(x) {
+        if (player === 1) {
+          ball.style.left = `${x}%`;
+        }
+        if (player === 2) {
+          ball.style.left = `${100 - x}%`;
+        }
+      });
+    </script>
+  </body>
+</html>
