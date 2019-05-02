@@ -4,57 +4,68 @@
     <title>Socket.IO chat</title>
   </head>
   <body>
+    <h1>Player <span id="player"></span></h1>
     <div style="margin: 3rem; height: 30rem; border: .5rem solid #d1d1d1;">
       <div id="box" style="height:27rem">
         <div
           id="ball"
-          style="width:.5rem; height:.5rem; top:50%; left:30%; background-color: black; position: relative;"
+          style="width:5px; height:5px; top:50%; left:30%; background-color: black; position: relative;"
         ></div>
         <div
-          id="cursor_a"
-          style="width:.5rem; height:3rem; background-color: blue; position: absolute;"
+          id="cursor_1"
+          style="width:5px; height:50px; background-color: blue; position: absolute;"
         ></div>
         <div
-          id="cursor_b"
-          style="width:.5rem; height:3rem; background-color: red; right:4rem; position: absolute;"
+          id="cursor_2"
+          style="width:5px; height:50px; background-color: red; right:4rem; position: absolute;"
         ></div>
       </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var id;
       var player;
       const socket = io();
-      const cursor_a = document.getElementById("cursor_a");
-      const cursor_b = document.getElementById("cursor_b");
+      const cursor_1 = document.getElementById("cursor_1");
+      const cursor_2 = document.getElementById("cursor_2");
       const ball = document.getElementById("ball");
+      socket.on("connected", function(event) {
+        socket.removeAllListeners("connected");
+        player = event;
+        document.getElementById("player").innerHTML = event.user;
+      });
+
       document.getElementById("box").addEventListener("mousemove", function(event) {
         if (player && event.target === this) {
-          cursor_a.style.top = `${event.clientY}px`;
-          socket.emit("coord", { id: player, coord: event.clientY });
+          cursor_1.style.top = `${event.clientY}px`;
+          socket.emit("coord", { player, coord: event.clientY });
         }
+      });
+
+      socket.on("end_game", function(loser) {
+        if (loser.id === player.id) alert("You lose");
+        else alert("You win");
       });
       socket.on("coord", function(event) {
         if (player) {
-          console.log(player);
-          const { id, coord } = event;
-          if (id !== player) cursor_b.style.top = `${coord}px`;
+          if (event.player.id !== player.id) cursor_2.style.top = `${event.coord}px`;
         }
       });
-      socket.on("connected", function(event) {
-        socket.removeAllListeners("connected");
-        const { eid, eplayer } = event;
-        id = eid;
-        player = eplayer;
-      });
-      socket.on("ball", function(x) {
-        if (player === 1) {
-          ball.style.left = `${x}%`;
-        }
-        if (player === 2) {
-          ball.style.left = `${100 - x}%`;
+      socket.on("ball", function(event) {
+        let ball_coord;
+        if (event.player.user === player.user) ball_coord = event.coord;
+        else ball_coord = 100 - event.coord;
+
+        // set ball position
+        ball.style.left = `${ball_coord}%`;
+        // check if game ended
+        if (ball_coord === 0 && intersect(cursor_1) === false) {
+          socket.emit("end_game", player);
         }
       });
+
+      function intersect(element) {
+        return cursor_1.offsetTop < ball.offsetTop && cursor_1.offsetTop + 50 > ball.offsetTop;
+      }
     </script>
   </body>
 </html>
