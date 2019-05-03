@@ -2,10 +2,15 @@
 <html>
   <head>
     <title>Socket.IO chat</title>
+    <meta
+      content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"
+      name="viewport"
+    />
+    <meta name="viewport" content="width=device-width" />
   </head>
-  <body style="overflow-y: none">
-    <h1>Player <span id="player"></span></h1>
-    <div style="margin: 3rem; height: 30rem; border: .5rem solid #d1d1d1;">
+  <body style="overflow-y: hidden; position: relative;">
+    <h1 style="margin-bottom:0">Player <span id="player"></span></h1>
+    <div style="height: 20rem; border: .5rem solid #d1d1d1;">
       <div id="box" style="height:27rem">
         <div
           id="ball"
