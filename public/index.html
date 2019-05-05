@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <meta
+      content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0"
+      name="viewport"
+    />
+    <meta name="viewport" content="width=device-width" />
+  </head>
+  <body style="overflow-y: hidden;">
+    <h1 style="margin-bottom:0">Player <span id="player"></span></h1>
+    <div style="height: 20rem; border: .5rem solid #d1d1d1;">
+      <div id="box" style="height:100%; position: relative;">
+        <div
+          id="ball"
+          style="width:5px; height:5px; top:50%; left:30%; background-color: black; position: relative;"
+        ></div>
+        <div
+          id="cursor_1"
+          style="width:5px; height:50px; background-color: blue; position: absolute;"
+        ></div>
+        <div
+          id="cursor_2"
+          style="width:5px; height:50px; background-color: red; right:0; position: absolute;"
+        ></div>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="ponging.js"></script>
+  </body>
+</html>
