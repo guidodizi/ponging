@@ -8,10 +8,10 @@
     />
     <meta name="viewport" content="width=device-width" />
   </head>
-  <body style="overflow-y: hidden; position: relative;">
+  <body style="overflow-y: hidden;">
     <h1 style="margin-bottom:0">Player <span id="player"></span></h1>
     <div style="height: 20rem; border: .5rem solid #d1d1d1;">
-      <div id="box" style="height:27rem">
+      <div id="box" style="height:100%; position: relative;">
         <div
           id="ball"
           style="width:5px; height:5px; top:50%; left:30%; background-color: black; position: relative;"
@@ -22,13 +22,15 @@
         ></div>
         <div
           id="cursor_2"
-          style="width:5px; height:50px; background-color: red; right:4rem; position: absolute;"
+          style="width:5px; height:50px; background-color: red; right:0; position: absolute;"
         ></div>
       </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var player;
+      const cursor_height = 50;
+
       const socket = io();
       const box = document.getElementById("box");
       const cursor_1 = document.getElementById("cursor_1");
@@ -69,21 +71,22 @@
 
       function moveCursor(event) {
         if (player) {
-          if (event instanceof TouchEvent) {
-            let y_coord = event.touches[0].clientY;
+          let pos_y;
+          // Mobile
+          if (event instanceof TouchEvent) pos_y = event.touches[0].clientY;
+          // Desktop
+          else pos_y = event.clientY;
 
-            if (event.touches[0].clientY > box.offsetHeight + box.offsetTop)
-              y_coord = box.offsetHeight + box.offsetTop;
-            else if (event.touches[0].clientY < box.offsetTop) y_coord = box.offsetTop;
+          // set position on middle of cursor
+          pos_y = pos_y - cursor_height / 2 - box.offsetTop;
+          // top of board
+          if (pos_y <= 0) pos_y = 0;
+          // bottom of board
+          else if (pos_y + cursor_height >= box.offsetHeight)
+            pos_y = box.offsetHeight - cursor_height;
 
-            cursor_1.style.top = `${y_coord}px`;
-            socket.emit("coord", { player, coord: y_coord });
-          } else {
-            if (event.target === this) {
-              cursor_1.style.top = `${event.clientY}px`;
-              socket.emit("coord", { player, coord: event.clientY });
-            }
-          }
+          cursor_1.style.top = `${pos_y}px`;
+          socket.emit("coord", { player, coord: pos_y });
         }
       }
       function intersect(element) {
